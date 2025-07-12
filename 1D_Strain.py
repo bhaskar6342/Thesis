@@ -1,20 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# E = 7170            # Young's modulus of Al7075-T6 [MPa]
-# A = 1000            # Cross-sectional area [mm²] = 10mm x 10mm
-# L = 1000             # Total length of the bar [mm]
-# F = 1e3           # Applied load at the right end [N]
-# num_elements = 10   # Number of 1D elements
+E = 7170            # Young's modulus of Al7075-T6 [MPa]
+A = 1000            # Cross-sectional area [mm²] = 10mm x 10mm
+L = 1000             # Total length of the bar [mm]
+F = 1e3           # Applied load at the right end [N]
+num_elements = 10   # Number of 1D elements
 
 #----------------------------
 # Input Problem parameters
 # ---------------------------
-E = float(input('Enter youngs modulus (MPa): '))
-A = float(input('Enter the area of cross-section (mm^2): '))
-L = float(input('Length of the Bar (mm): '))
-F = float(input('Force Applied (N): '))
-num_elements = int(input('Enter the number of elements to be generated: '))
+# E = float(input('Enter youngs modulus (MPa): '))
+# A = float(input('Enter the area of cross-section (mm^2): '))
+# L = float(input('Length of the Bar (mm): '))
+# F = float(input('Force Applied (N): '))
+# num_elements = int(input('Enter the number of elements to be generated: '))
 num_nodes = num_elements + 1
 element_length = L / num_elements
 
