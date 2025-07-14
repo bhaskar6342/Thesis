@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-E = 7170            # Young's modulus of Al7075-T6 [MPa]
-A = 1000            # Cross-sectional area [mm²] = 10mm x 10mm
+E = 71700           # Young's modulus of Al7075-T6 [MPa]
+A = 25            # Cross-sectional area [mm²] = 5mm x 5mm
 L = 1000             # Total length of the bar [mm]
-F = 1e3           # Applied load at the right end [N]
-num_elements = 10   # Number of 1D elements
+F = 0.3e3           # Applied load at the right end [N]
+num_elements = 15   # Number of 1D elements
 
 #----------------------------
 # Input Problem parameters
@@ -36,7 +36,8 @@ for i in range(num_elements):
 # ------------------------
 # Apply Boundary Conditions and Loads
 # ------------------------
-f[num_nodes-1] = F          # Apply 100kN force at the right end
+f[num_nodes-1] = F
+f[7] = 450          # Apply 100kN force at the right end
 K_mod = K.copy()
 f_mod = f.copy()
 
@@ -50,6 +51,7 @@ f_mod[0] = 0
 # Solve System
 # ------------------------
 u = np.linalg.solve(K_mod, f_mod)
+print('\nDisplacemnt (u):', u)
 
 # ------------------------
 # Postprocessing
@@ -68,25 +70,25 @@ for i in range(num_elements):
 # Output
 # ------------------------
 print("Nodal Displacements (in mm):")
-print(np.round(u * 1, 6))
+print(np.round(u, 6))
 print("\nElemental Stress (in MPa):")
-print(np.round(stress * 1, 3))
+print(np.round(stress, 3))
 print("\nElemental Strain:")
 print(np.round(strain, 6))
-print("\nElemental Strain Energy Density (in J/m³):")
+print("\nElemental Strain Energy Density (in J/mm³):")
 print(np.round(strain_energy_density, 5))
 
 # ------------------------
 # Plotting
-# ------------------------
+# ------------------------ 
 x = np.linspace(0, L, num_elements)
+print(x)
 plt.figure(figsize=(5, 3))
-plt.plot(x + element_length / 2, stress * 1, label="Stress (MPa)", marker='o')
-plt.plot(x + element_length / 2, strain, label="Strain", marker='s')
-plt.plot(x + element_length / 2, strain_energy_density, label="Strain Energy Density (J/mm³)", marker='^')
+plt.plot(x+element_length / 2, stress * 1, label="Stress (MPa)", marker='o')
+plt.plot(x+element_length / 2, strain, label="Strain", marker='s')
+plt.plot(x+element_length / 2, strain_energy_density, label="Strain Energy Density (J/mm³)", marker='^')
 plt.xlabel("Length along bar (mm)")
 plt.legend()
 plt.title("1D Bar FEA: Stress, Strain & Strain Energy Density")
 plt.grid(True)
 plt.show()
-
