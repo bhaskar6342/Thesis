@@ -8,10 +8,10 @@ from scipy.interpolate import interp1d
 E = 71700           # Young's modulus of Al7075-T6 [MPa]
 A = 25            # Cross-sectional area [mm²] = 5mm x 5mm
 L = 1000             # Total length of the bar [mm]
-F = -200           # Applied load at the right end [N]
-num_elements = 10   # Number of 1D elements
-a = 4               # location of additional load
-P = 300           # load to be applied
+F = 200           # Applied load at the right end [N]
+num_elements = 100   # Number of 1D elements
+a = 0               # location of additional load
+P = 00           # load to be applied
 
 #----------------------------
 # Input Problem parameters
@@ -82,7 +82,7 @@ for i in range(num_elements):
 # Output
 # ------------------------
 print("Nodal Displacements (in mm):")
-print(np.round(u, 6))
+print(np.round(u[:50], 6))
 print("\nElemental Stress (in MPa):")
 print(np.round(stress, 3))
 print("\nElemental Strain:")
@@ -93,23 +93,8 @@ print(np.round(strain_energy_density, 5))
 # ------------------------
 # Plotting
 # ------------------------ 
-x = np.linspace(0, L, num_elements)
 node_positions = np.linspace(0, L, num_nodes)
-
-
-print(f"\nElement Length: {element_length} mm")
-print("\nlol", x)
-# plt.figure(figsize=(5, 3))
-# plt.subplot(4, 1, 1)
-# plt.plot(x+element_length / 2, stress * 1, label="Stress (MPa)", marker='o')
-# plt.plot(x+element_length / 2, strain, label="Strain", marker='s')
-# plt.plot(x+element_length / 2, strain_energy_density, label="Strain Energy Density (J/mm³)", marker='^')
-# plt.xlabel("Length along bar (mm)")
-# plt.legend()
-# plt.title("1D Bar FEA: Stress, Strain & Strain Energy Density")
-# plt.grid(True)
-# # plt.show()
-
+print("\nNode Positions (mm):", node_positions)
 # ------------------------
 # 2. Interpolated (Continuous) Stress/Strain Plots
 # ------------------------
@@ -135,9 +120,9 @@ energy_continuous = energy_interp(node_positions)
 plt.subplot(2, 1, 1)
 plt.plot(node_positions, stress_continuous * 1e-6, label='Stress (1e6 MPa)', marker='o')
 plt.plot(node_positions, strain_continuous, label='Strain', marker='s')
-plt.plot(node_positions, energy_continuous, label='Strain Energy Density (J/m³)', marker='^')
+plt.plot(node_positions, energy_continuous, label='Strain Energy Density (J/mm³)', marker='^')
 plt.title("Interpolated Stress, Strain, and Energy Density")
-plt.xlabel("Position along bar (m)")
+plt.xlabel("Position along bar (mm)")
 plt.legend()
 plt.grid(True)
 # plt.show()
