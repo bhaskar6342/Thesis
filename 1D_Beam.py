@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.integrate as spi
 np.set_printoptions(threshold=np.inf, linewidth=200)
 
 
@@ -13,15 +14,27 @@ np.set_printoptions(threshold=np.inf, linewidth=200)
 # P = float(input('Enter the point load (N): '))
 # a = float(input('Enter the location of the point load (m): '))
 # num_elements = int(input('Enter the number of elements to be generated: '))
+# support = input('Enter the type of support (F, FF, PP, PR, RR): ')
 
 E = 200e9  # Young's Modulus for steel [Pa]
 I = 4e-6   # Area Moment of Inertia [m^4] (e.g., for a rectangular cross-section)
 L = 5      # Total length of the beam [m]
 W = 1000   # Uniformly distributed load [N/m]
 P = 1000   # Point load [N]
+#-------------------------------------------------------------------------------------------------------------------------
+# --- Define supports ---
+#-------------------------------------------------------------------------------------------------------------------------
+# F = Cantoilever beam: fixed at left end, free at right end
+# FF = Fixed at both ends
+# PP = Pin supported at both ends
+# PR = Pin at left end, Roller at right end
+# RR = Roller at both ends
+
+support = 'rr'  # Change this to 'F', 'FF', 'PP', 'PR', or 'RR' as needed
+
 
 a = 3      # Location of the point load [m]
-num_elements = 1000  # Number of 1D beam elements
+num_elements = 300  # Number of 1D beam elements
 
 num_nodes = num_elements + 1
 element_length = L / num_elements
@@ -138,7 +151,35 @@ node_load_index = int(round(a / element_length))
 # The displacement DOF is 2*node_index
 f[2 * node_load_index] += P
 
-# print("\nGlobal Force Vector (f):\n", np.round(f, 2))
+print("\nGlobal Force Vector (f):\n", np.round(f, 2))
+
+#-------------------------------------------------------------------------------------------------------------------------
+# ---Improved Apply Boundary Conditions ---
+#-------------------------------------------------------------------------------------------------------------------------
+# The boundary conditions depend on the type of support specified.
+# We will define the boundary conditions based on the 'support' variable.
+
+support = support.upper()  # Ensure the support type is in uppercase for consistency
+if support == 'F':  # Cantilever beam: fixed at left end, free at right end
+    fixed_dofs = [0, 1]  # Fixed at left end (v=0, theta=0)
+elif support == 'FF':  # Fixed at both ends
+    fixed_dofs = [0, 1, 2*(num_nodes-1), 2*(num_nodes-1)+1]  # Fixed at left end and right end
+elif support == 'PP':  # Pin supported at both ends
+    fixed_dofs = [0, 2*(num_nodes-1)]  # Vertical
+elif support == 'PR':  # Pin at left end, Roller at right end
+    fixed_dofs = [0, 2*(num_nodes-1)]  # Vertical at left end and vertical at right end
+elif support == 'RR':  # Roller at both ends
+    fixed_dofs = [0, 2*(num_nodes-1)]  # Vertical at left end and vertical at right end
+else:
+    raise ValueError(
+        """Invalid support type. Choose from:
+        F  = Cantilever beam: fixed at left end, free at right end
+        FF = Fixed at both ends
+        PP = Pin supported at both ends
+        PR = Pin at left end, Roller at right end
+        RR = Roller at both ends"""
+    )
+
 
 #-------------------------------------------------------------------------------------------------------------------------
 # --- Apply Boundary Conditions ---
@@ -148,8 +189,14 @@ f[2 * node_load_index] += P
 # We are fixing both the vertical displacement (v) and the rotation (theta) at node 0.
 # This corresponds to DOFs 0 and 1.
 # fixed_dofs = [0, 1]
-fixed_dofs = [0, 1, 2*(num_nodes-1), 2*(num_nodes-1)+1]  # Fixed at left end and right end
+# fixed_dofs = [0, 1, 2*(num_nodes-1), 2*(num_nodes-1)+1]  # Fixed at left end and right end
 
+#-------------------------------------------------------------------------------------------------------------------------
+# --- Modifying Stiffness matrix and force vector ---
+#-------------------------------------------------------------------------------------------------------------------------
+
+# Create copies of K and f to modify
+# Modfiying the global stiffness matrix and force vector to apply boundary conditions
 K_mod = K.copy()
 f_mod = f.copy()
 
