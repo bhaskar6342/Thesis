@@ -18,9 +18,11 @@ np.set_printoptions(threshold=np.inf, linewidth=200)
 
 E = 200e9  # Young's Modulus for steel [Pa]
 I = 4e-6   # Area Moment of Inertia [m^4] (e.g., for a rectangular cross-section)
-L = 5      # Total length of the beam [m]
-W = 1000   # Uniformly distributed load [N/m]
-P = 1000   # Point load [N]
+L = 2      # Total length of the beam [m]
+W = -3000   # Uniformly distributed load [N/m]
+P = 000   # Point load [N]
+
+
 #-------------------------------------------------------------------------------------------------------------------------
 # --- Define supports ---
 #-------------------------------------------------------------------------------------------------------------------------
@@ -29,11 +31,10 @@ P = 1000   # Point load [N]
 # PP = Pin supported at both ends
 # PR = Pin at left end, Roller at right end
 # RR = Roller at both ends
+support = 'f'  # Change this to 'F', 'FF','FP', 'PP', 'PR', or 'RR' as needed
 
-support = 'rr'  # Change this to 'F', 'FF', 'PP', 'PR', or 'RR' as needed
 
-
-a = 3      # Location of the point load [m]
+a = 1     # Location of the point load [m]
 num_elements = 300  # Number of 1D beam elements
 
 num_nodes = num_elements + 1
@@ -119,6 +120,7 @@ def build_element_stiffness_matrix(E, I, L_e):
 k_local = build_element_stiffness_matrix(E, I, element_length)
 
 for i in range(num_elements):
+    
     # Map local DOFs to global DOFs for the current element
     dof_map = [2 * i, 2 * i + 1, 2 * (i + 1), 2 * (i + 1) + 1]
     
@@ -164,6 +166,8 @@ if support == 'F':  # Cantilever beam: fixed at left end, free at right end
     fixed_dofs = [0, 1]  # Fixed at left end (v=0, theta=0)
 elif support == 'FF':  # Fixed at both ends
     fixed_dofs = [0, 1, 2*(num_nodes-1), 2*(num_nodes-1)+1]  # Fixed at left end and right end
+elif support == 'FP':  # Fixed at left end, Pin at right end
+    fixed_dofs = [0, 1, 2*(num_nodes-1)]  # Fixed at left end and vertical at right end
 elif support == 'PP':  # Pin supported at both ends
     fixed_dofs = [0, 2*(num_nodes-1)]  # Vertical
 elif support == 'PR':  # Pin at left end, Roller at right end
@@ -233,7 +237,10 @@ for i in range(num_elements):
     # Shear force at the start and end of the element
     shear_force[i] = f_local_internal[0]
     # Bending moment at the start and end of the element
-    bending_moment[i] = f_local_internal[1]
+    bending_moment[i] = -f_local_internal[1]
+
+
+
 #-------------------------------------------------------------------------------------------------------------------------
 # --- Output ---
 #-------------------------------------------------------------------------------------------------------------------------
