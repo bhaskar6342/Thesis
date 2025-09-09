@@ -17,9 +17,9 @@ np.set_printoptions(threshold=np.inf, linewidth=200)
 # support = input('Enter the type of support (F, FF, PP, PR, RR): ')
 
 E = 200e9  # Young's Modulus for steel [Pa]
-I = 4e-6   # Area Moment of Inertia [m^4] (e.g., for a rectangular cross-section)
-L = 2      # Total length of the beam [m]
-W = -3000   # Uniformly distributed load [N/m]
+I = 8.33334e-6   # Area Moment of Inertia [m^4] (e.g., for a rectangular cross-section)
+L = 10      # Total length of the beam [m]
+W = 6000   # Uniformly distributed load [N/m]
 P = 000   # Point load [N]
 
 
@@ -35,7 +35,7 @@ support = 'f'  # Change this to 'F', 'FF','FP', 'PP', 'PR', or 'RR' as needed
 
 
 a = 1     # Location of the point load [m]
-num_elements = 300  # Number of 1D beam elements
+num_elements = 4  # Number of 1D beam elements
 
 num_nodes = num_elements + 1
 element_length = L / num_elements
@@ -219,15 +219,18 @@ u = np.linalg.solve(K_mod, f_mod)
 u_v = u[::2]  # Vertical displacements (at even indices)
 u_theta = u[1::2] # Rotations (at odd indices)
 
+
 #-------------------------------------------------------------------------------------------------------------------------
 # --- Postprocessing ---
 #-------------------------------------------------------------------------------------------------------------------------
 
 # Calculate internal forces (shear force and bending moment)
-shear_force = np.zeros(num_elements)
-bending_moment = np.zeros(num_elements)
+node_positions = np.linspace(0, L, num_elements + 1)
+print("\nNode Positions (m):\n", np.round(node_positions, 2))
+shear_force = np.zeros(node_positions.shape)
+bending_moment = np.zeros(node_positions.shape)
 
-for i in range(num_elements):
+for i in range(node_positions.shape[0] - 1):
     dof_map = [2 * i, 2 * i + 1, 2 * (i + 1), 2 * (i + 1) + 1]
     u_element = u[dof_map]
     
@@ -258,7 +261,6 @@ print(np.round(bending_moment, 2))
 # --- Plotting ---
 #-------------------------------------------------------------------------------------------------------------------------
 
-node_positions = np.linspace(0, L, num_nodes)
 element_centers = np.linspace(element_length / 2, L - element_length / 2, num_elements)
 
 #-------------------------------------------------------------------------------------------------------------------------
@@ -275,7 +277,7 @@ plt.grid(True)
 
 # Plotting shear force
 plt.subplot(3, 1, 2)
-plt.step(np.repeat(element_centers, 2), np.repeat(shear_force, 2), where='mid', color='red', linestyle='-')
+plt.step(np.repeat(node_positions, 2), np.repeat(shear_force, 2), where='mid', color='red', linestyle='-')
 plt.title('Shear Force Diagram')
 plt.xlabel('Position along beam (m)')
 plt.ylabel('Shear Force (N)')
@@ -283,7 +285,7 @@ plt.grid(True)
 
 # Plotting bending moment
 plt.subplot(3, 1, 3)
-plt.step(np.repeat(element_centers, 2), np.repeat(bending_moment, 2), where='mid', color='green', linestyle='-')
+plt.step(np.repeat(node_positions, 2), np.repeat(bending_moment, 2), where='mid', color='green', linestyle='-')
 plt.title('Bending Moment Diagram')
 plt.xlabel('Position along beam (m)')
 plt.ylabel('Bending Moment (Nm)')
