@@ -19,8 +19,8 @@ np.set_printoptions(threshold=np.inf, linewidth=200)
 E = 200e9  # Young's Modulus for steel [Pa]
 I = 8.33334e-6   # Area Moment of Inertia [m^4] (e.g., for a rectangular cross-section)
 L = 10      # Total length of the beam [m]
-W = 6000   # Uniformly distributed load [N/m]
-P = 000   # Point load [N]
+W = 000   # Uniformly distributed load [N/m]
+P = 6000   # Point load [N]
 
 
 #-------------------------------------------------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ P = 000   # Point load [N]
 support = 'f'  # Change this to 'F', 'FF','FP', 'PP', 'PR', or 'RR' as needed
 
 
-a = 1     # Location of the point load [m]
-num_elements = 4  # Number of 1D beam elements
+a = 7     # Location of the point load [m]
+num_elements = 1000 # Number of 1D beam elements
 
 num_nodes = num_elements + 1
 element_length = L / num_elements
@@ -224,9 +224,8 @@ u_theta = u[1::2] # Rotations (at odd indices)
 # --- Postprocessing ---
 #-------------------------------------------------------------------------------------------------------------------------
 
-# Calculate internal forces (shear force and bending moment)
+# Calculate internal forces (shear force and bending moment at node points)
 node_positions = np.linspace(0, L, num_elements + 1)
-print("\nNode Positions (m):\n", np.round(node_positions, 2))
 shear_force = np.zeros(node_positions.shape)
 bending_moment = np.zeros(node_positions.shape)
 
@@ -242,7 +241,7 @@ for i in range(node_positions.shape[0] - 1):
     # Bending moment at the start and end of the element
     bending_moment[i] = -f_local_internal[1]
 
-
+print(u_element)
 
 #-------------------------------------------------------------------------------------------------------------------------
 # --- Output ---
@@ -269,26 +268,45 @@ element_centers = np.linspace(element_length / 2, L - element_length / 2, num_el
 
 plt.figure(figsize=(10, 8))
 plt.subplot(3, 1, 1)
-plt.plot(node_positions, u_v * 1e3, marker='o', linestyle='-')
+plt.plot(node_positions, u_v * 1e3, marker='', linestyle='-')
+plt.plot(0, 0, marker='x', color='red')
+plt.plot(2.5, 474.6, marker='x', color='red')
+plt.plot(5,1593.7 , marker='x', color='red')
+plt.plot(7.5, 3005.83, marker='x', color='red')
+plt.plot(10, 4499, marker='x', color='red')
 plt.title('Nodal Vertical Displacement')
 plt.xlabel('Position along beam (m)')
 plt.ylabel('Displacement (mm)')
+plt.legend(['Numerical', 'Exact & Analytical'])
 plt.grid(True)
 
 # Plotting shear force
 plt.subplot(3, 1, 2)
-plt.step(np.repeat(node_positions, 2), np.repeat(shear_force, 2), where='mid', color='red', linestyle='-')
+plt.step(np.repeat(node_positions, 2), np.repeat(shear_force, 2), color='blue', linestyle='-')
+plt.plot(0, -60000, marker='x', color='red')
+plt.plot(2.5, -45000, marker='x', color='red')
+plt.plot(5,-30000 , marker='x', color='red')
+plt.plot(7.5, -15000, marker='x', color='red')
+plt.plot(10, 0, marker='x', color='red')
 plt.title('Shear Force Diagram')
 plt.xlabel('Position along beam (m)')
 plt.ylabel('Shear Force (N)')
+plt.legend(['Numerical', 'Exact & Analytical'])
 plt.grid(True)
 
 # Plotting bending moment
 plt.subplot(3, 1, 3)
-plt.step(np.repeat(node_positions, 2), np.repeat(bending_moment, 2), where='mid', color='green', linestyle='-')
+plt.step(np.repeat(node_positions, 2), np.repeat(bending_moment, 2), color='green', linestyle='-')
+plt.plot(0, 300000, marker='x', color='red')
+plt.plot(2.5, 168750, marker='x', color='red')
+plt.plot(5,75000 , marker='x', color='red')
+plt.plot(7.5, 18750, marker='x', color='red')
+plt.plot(10, 0, marker='x', color='red')
 plt.title('Bending Moment Diagram')
 plt.xlabel('Position along beam (m)')
 plt.ylabel('Bending Moment (Nm)')
+plt.legend(['Numerical', 'Exact & Analytical'])
+
 plt.grid(True)
 
 plt.tight_layout()

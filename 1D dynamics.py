@@ -12,7 +12,7 @@ start_time = time.perf_counter()
 E = 2.0e11      # Young's Modulus (Pa)
 rho = 7850      # Density (kg/m^3)
 A = 0.001       # Cross-sectional Area (m^2)
-L = 10.0         # Total Length of the Bar (m)
+L = 1.0         # Total Length of the Bar (m)
 
 # FEM Discretization
 Nel = 100        # Number of Elements
@@ -27,7 +27,7 @@ Le = L / Nel    # Length of a single element
 # =================================================================
 
 # --> DEFINE NUMBER OF INTEGRATION POINTS HERE <--
-N_ip = 3  # Options: 1, 2, or 3 (2 is typically used for exact integration)
+N_ip = 2  # Options: 1, 2, or 3 (2 is typically used for exact integration)
 
 def get_gauss_data(N_ip):
     """Returns Gauss points (xi) and weights (w) for a given N_ip."""
@@ -109,7 +109,7 @@ for e in range(Nel):
     M_global[n1:n2+1, n1:n2+1] += Me
 
 
-print(Me, "\n", M_global)
+# print(Me, "\n", M_global)
 
 # =================================================================
 # 4. BOUNDARY CONDITIONS (Fixed-Free Bar)
@@ -130,6 +130,9 @@ M_reduced = M_global[np.ix_(free_dof, free_dof)]
 eigenvalues, eigenvectors_reduced = la.eigh(K_reduced, M_reduced)
 omega_squared = np.real(eigenvalues)
 natural_frequencies = np.sqrt(omega_squared) / (2 * np.pi)
+
+# print("Eigenvalues (omega^2):", omega_squared)
+# print("Eignenvectors (reduced):", eigenvectors_reduced)
 
 end_time = time.perf_counter()
 print(f"Computation Time: {end_time - start_time:.4f} seconds")
@@ -160,10 +163,10 @@ x_nodes = np.linspace(0, L, Nnodes)
 
 for i in range(3):
     mode_shape = np.insert(eigenvectors_reduced[:, i], 0, 0)
-    mode_shape = mode_shape / np.max(np.abs(mode_shape))
+    # mode_shape = mode_shape / np.max(np.abs(mode_shape))
     
     ax = axes[i]
-    ax.plot(x_nodes, mode_shape, '-o', markersize=4)
+    ax.plot(x_nodes, mode_shape, '-o', markersize=1)
     ax.set_title(f'Mode {i+1} (f = {natural_frequencies[i]:.2f} Hz)')
     ax.set_xlabel('Position x (m)')
 
